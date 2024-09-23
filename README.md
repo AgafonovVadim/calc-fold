@@ -1,6 +1,5 @@
-<!--
 # Simple Calculator
--->
+
 
 Supports basic arithmetic operations and decimal number input.  
 Operations are performed on the value in a single register (also the result receiver) and, if the operation is binary, the second operand entered after the operator.
