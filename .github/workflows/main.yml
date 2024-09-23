@@ -1,4 +1,4 @@
-name: Cpp porject with gtest
+name: CI
 
 on: [push]
 
