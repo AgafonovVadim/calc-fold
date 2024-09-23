@@ -1,0 +1,67 @@
+name: Cpp porject with gtest
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      CC:  clang
+      CXX: clang++
+
+    steps:
+    - name: Setup dependencies
+      run: |
+        sudo apt-get install -y clang-tidy
+
+    - name: Clone gtest
+      uses: actions/checkout@v3
+      with:
+        repository: 'google/googletest'
+        path: gtest
+
+    - name: Install gtest
+      run: |
+        cd ${{ github.workspace }}/gtest && mkdir build && cd build
+        cmake .. -DBUILD_SHARED_LIBS=ON -DINSTALL_GTEST=ON -DCMAKE_INSTALL_PREFIX:PATH=/usr
+        cmake --build . --target all --parallel
+        sudo cmake --install .
+        sudo ldconfig
+
+    - name: Checkout submodules
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Check for bad words
+      run: "! grep -R -n -w -f .bad_words src include"
+    
+    - name: Run clang format
+      uses: DoozyX/clang-format-lint-action@v0.14
+      with:
+        source: '.'
+        exclude: './googletest ./test'
+        extensions: 'h,hpp,cpp'
+        clangFormatVersion: 14
+
+    - name: Build default
+      run: mkdir build && cmake -S. -Bbuild -DUSE_CLANG_TIDY=TRUE && cmake --build build
+
+    - name: Run default tests
+      timeout-minutes: 3
+      run: ./build/tests/runUnitTests
+
+    - name: Build ASAN
+      run: mkdir build_ASAN && cmake -S. -Bbuild_ASAN -DCMAKE_BUILD_TYPE=ASAN && cmake --build build_ASAN
+
+    - name: Run ASAN tests
+      timeout-minutes: 5
+      run: ./build_ASAN/tests/runUnitTests
+
+    - name: Build USAN
+      run: mkdir build_USAN && cmake -S. -Bbuild_USAN -DCMAKE_BUILD_TYPE=USAN && cmake --build build_USAN
+
+    - name: Run USAN tests
+      timeout-minutes: 3
+      run: ./build_USAN/tests/runUnitTests
