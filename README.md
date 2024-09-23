@@ -1,4 +1,4 @@
-# Simple Calculator  
+# Simple Calculator  [![CI](https://github.com/AgafonovVadim/calc-fold/actions/workflows/main.yml/badge.svg)](https://github.com/AgafonovVadim/calc-fold/actions/workflows/main.yml)
 
 
 Supports basic arithmetic operations and decimal number input.  
